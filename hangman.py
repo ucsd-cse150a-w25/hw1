@@ -63,7 +63,7 @@ def hangman_game(
 
     while tries < max_tries and '_' in word_pattern:
         if interactive:
-            clear_output(wait=True)
+            clear_output(wait=False)
             time.sleep(0.5)
             print(message)
             draw_hangman(tries)
@@ -103,7 +103,7 @@ def hangman_game(
         else:
             tries += 1
     if interactive:
-        clear_output(wait=True)
+        clear_output(wait=False)
         time.sleep(0.5)
         print(message)
         draw_hangman(tries)
