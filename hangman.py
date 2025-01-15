@@ -32,7 +32,9 @@ def draw_hangman(tries: int) -> None:
 
 def hangman_game(
     inference: Optional[Callable] = None,
-    word_file_path: str = "hw1_word_counts_05.txt"
+    word_file_path: str = "hw1_word_counts_05.txt",
+    interactive: bool = True,
+    seed: Optional[int] = None
 ) -> None:
     '''
     Engine for running the hangman game.
@@ -42,9 +44,20 @@ def hangman_game(
     :type inference: Optional[Callable]
     :param word_file_path: The path to the word counts file.
     :type word_file_path: str
+    :param interactive: Set to true if the game should be interactive, false otherwise.
+    :type interactive: bool
+    :param seed: Set to an int for random seeding.
+    :type seed: Optional[int]
     '''
+    if seed is not None:
+        random.seed(seed)
+    if not interactive and not inference:
+        raise ValueError('Hangman without an algorithm function cannot be run in noninteractive mode.')
     word_counts = load_word_counts(word_file_path)
-    word = random.choice(list(word_counts.keys()))
+    all_words = []
+    for word, freq in word_counts.items():
+        all_words += [word] * freq
+    word = random.choice(all_words)
     word_pattern: list[str] = ['_'] * len(word)
     letters_tried: set[str] = set()
     max_tries: int = 6
@@ -52,11 +65,12 @@ def hangman_game(
     message: str = ''
 
     while tries < max_tries and '_' in word_pattern:
-        clear_output(wait=True)
-        time.sleep(0.5)
-        print(message)
-        draw_hangman(tries)
-        print(f"Word: {' '.join(word_pattern)}\nTried letters: {', '.join(sorted(letters_tried))}")
+        if interactive:
+            clear_output(wait=True)
+            time.sleep(0.5)
+            print(message)
+            draw_hangman(tries)
+            print(f"Word: {' '.join(word_pattern)}\nTried letters: {', '.join(sorted(letters_tried))}")
         message = ''
 
         try:
@@ -91,12 +105,16 @@ def hangman_game(
                     word_pattern[i] = guess
         else:
             tries += 1
-    clear_output(wait=True)
-    time.sleep(0.5)
-    print(message)
-    draw_hangman(tries)
-    print(f"Word: {' '.join(word_pattern)}\nTried letters: {', '.join(sorted(letters_tried))}")
+    if interactive:
+        clear_output(wait=True)
+        time.sleep(0.5)
+        print(message)
+        draw_hangman(tries)
+        print(f"Word: {' '.join(word_pattern)}\nTried letters: {', '.join(sorted(letters_tried))}")
     if '_' not in word_pattern:
-        print("Congratulations! You guessed the word: ", word)
-    else:
+        if interactive:
+            print("Congratulations! You guessed the word: ", word)
+        return 1
+    if interactive:
         print("Game over! The word was: ", word)
+    return 0
