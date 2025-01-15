@@ -54,10 +54,7 @@ def hangman_game(
     if not interactive and not inference:
         raise ValueError('Hangman without an algorithm function cannot be run in noninteractive mode.')
     word_counts = load_word_counts(word_file_path)
-    all_words = []
-    for word, freq in word_counts.items():
-        all_words += [word] * freq
-    word = random.choice(all_words)
+    word = random.choices(list(word_counts.keys()), weights=list(word_counts.values()), k=1)[0]
     word_pattern: list[str] = ['_'] * len(word)
     letters_tried: set[str] = set()
     max_tries: int = 6
